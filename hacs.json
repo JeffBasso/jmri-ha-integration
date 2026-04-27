@@ -1,5 +1,5 @@
 {
-    "name": "Integration blueprint",
-    "homeassistant": "2026.3.2",
-    "hacs": "2.0.5"
+  "name": "JMRI Model Railroad",
+  "render_readme": true,
+  "homeassistant": "2025.1.0"
 }

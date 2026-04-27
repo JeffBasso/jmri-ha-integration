@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to JMRI",
+        "description": "Enter the connection details for your JMRI installation",
+        "data": {
+          "name": "Railroad name",
+          "host": "JMRI host address",
+          "port": "JMRI web server port"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to JMRI — check host and port",
+      "unknown": "Unexpected error — check JMRI is running"
+    },
+    "abort": {
+      "already_configured": "JMRI is already configured"
+    }
+  }
+}
