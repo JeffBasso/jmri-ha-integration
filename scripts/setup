@@ -4,4 +4,50 @@ set -e
 
 cd "$(dirname "$0")/.."
 
+codex_dir="${HOME}/.codex"
+codex_history_dir=".codex-history"
+
+mkdir -p "${codex_dir}"
+sudo chown -R "$(whoami)" "${codex_dir}"
+
+if [ -d "${codex_history_dir}/sessions" ] && [ ! -d "${codex_dir}/sessions" ]; then
+    mkdir -p "${codex_dir}"
+    cp -a "${codex_history_dir}/sessions" "${codex_dir}/sessions"
+fi
+
+for file in \
+    session_index.jsonl \
+    state_5.sqlite \
+    state_5.sqlite-shm \
+    state_5.sqlite-wal \
+    logs_2.sqlite \
+    logs_2.sqlite-shm \
+    logs_2.sqlite-wal
+do
+    if [ -f "${codex_history_dir}/${file}" ] && [ ! -f "${codex_dir}/${file}" ]; then
+        cp -a "${codex_history_dir}/${file}" "${codex_dir}/${file}"
+    fi
+done
+
 python3 -m pip install --requirement requirements.txt
+
+mkdir -p "${codex_history_dir}"
+
+if [ -d "${codex_dir}/sessions" ]; then
+    rm -rf "${codex_history_dir}/sessions"
+    cp -a "${codex_dir}/sessions" "${codex_history_dir}/sessions"
+fi
+
+for file in \
+    session_index.jsonl \
+    state_5.sqlite \
+    state_5.sqlite-shm \
+    state_5.sqlite-wal \
+    logs_2.sqlite \
+    logs_2.sqlite-shm \
+    logs_2.sqlite-wal
+do
+    if [ -f "${codex_dir}/${file}" ]; then
+        cp -a "${codex_dir}/${file}" "${codex_history_dir}/${file}"
+    fi
+done

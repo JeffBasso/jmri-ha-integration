@@ -3,21 +3,31 @@
     "image": "mcr.microsoft.com/devcontainers/base:debian",
     "postCreateCommand": "scripts/setup",
     "forwardPorts": [
-        8123
+        8123,
+        12080
     ],
     "portsAttributes": {
         "8123": {
             "label": "Home Assistant",
             "onAutoForward": "notify"
+        },
+        "12080": {
+            "label": "JMRI Web Server",
+            "onAutoForward": "notify"
         }
+    },
+    "otherPortsAttributes": {
+        "onAutoForward": "silent"
     },
     "customizations": {
         "vscode": {
             "extensions": [
+                "anthropic.claude-code",
                 "charliermarsh.ruff",
                 "github.vscode-pull-request-github",
                 "ms-python.python",
                 "ms-python.vscode-pylance",
+                "openai.chatgpt",
                 "ryanluker.vscode-coverage-gutters"
             ],
             "settings": {
@@ -35,10 +45,18 @@
             }
         }
     },
+    "mounts": [
+        "source=${localEnv:USERPROFILE}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached",
+        "source=${localEnv:USERPROFILE}/.codex,target=/home/vscode/.codex,type=bind,consistency=cached",
+        "source=${localEnv:USERPROFILE}/.docker,target=/home/vscode/.docker,type=bind,consistency=cached"
+    ],
     "remoteUser": "vscode",
     "features": {
         "ghcr.io/devcontainers/features/python:1": {
-            "version": "3.12"
+            "version": "3.13"
+        },
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+            "moby": false
         },
         "ghcr.io/devcontainers-extra/features/apt-packages:1": {
             "packages": "ffmpeg,libturbojpeg0,libpcap-dev"

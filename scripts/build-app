@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+export DOCKER_CONTEXT="${DOCKER_CONTEXT:-default}"
+
+# pick the right HA app architecture for this machine's arch
+ARCH=$(uname -m)
+case "$ARCH" in
+    x86_64)  BUILD_ARCH="amd64" ;;
+    aarch64) BUILD_ARCH="aarch64" ;;
+    armv7*)  BUILD_ARCH="armv7" ;;
+    *)       echo "Unsupported arch: $ARCH"; exit 1 ;;
+esac
+
+echo "Building JMRI app image for ${BUILD_ARCH}..."
+
+docker build \
+    --build-arg BUILD_ARCH="${BUILD_ARCH}" \
+    --tag local/jmri-app:latest \
+    app/jmri
+
+echo "Done — image: local/jmri-app:latest"

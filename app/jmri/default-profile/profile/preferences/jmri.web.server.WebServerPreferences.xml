@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+<preferences EXTERNAL_XML_VERSION="1.0">
+  <root type="user">
+    <map/>
+    <node name="jmri">
+      <map/>
+      <node name="web">
+        <map/>
+        <node name="server">
+          <map>
+            <entry key="port" value="12080"/>
+            <entry key="startAtStartup" value="true"/>
+            <entry key="allowRemoteConfig" value="false"/>
+            <entry key="readonlyServer" value="false"/>
+          </map>
+        </node>
+      </map>
+    </node>
+  </root>
+</preferences>

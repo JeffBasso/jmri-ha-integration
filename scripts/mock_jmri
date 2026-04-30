@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+"""Minimal mock JMRI REST server for local HA development."""
+import json
+import re
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+PORT = 12080
+
+# --- in-memory state ---
+
+power = {"state": 2}  # 2=ON, 4=OFF
+
+roster = [
+    {"name": "3001", "address": 3001, "userName": "SD40-2 Canyon"},
+    {"name": "4001", "address": 4001, "userName": "GP40 Desert"},
+    {"name": "701",  "address": 701,  "userName": "F7A Silver"},
+]
+
+sensors = [
+    {"name": "BK1", "state": 2},  # occupied
+    {"name": "BK2", "state": 4},  # clear
+    {"name": "BK3", "state": 2},  # occupied
+    {"name": "BK4", "state": 4},  # clear
+]
+
+turnouts = [
+    {"name": "TO1", "state": 2},  # closed
+    {"name": "TO2", "state": 4},  # thrown
+    {"name": "TO3", "state": 2},  # closed
+    {"name": "TO4", "state": 2},  # closed
+]
+
+signals = [
+    {"name": "SM-MAIN", "aspect": "Clear",    "lit": True,  "held": False},
+    {"name": "SM-YARD", "aspect": "Stop",     "lit": True,  "held": False},
+    {"name": "SM-LOOP", "aspect": "Approach", "lit": True,  "held": False},
+]
+
+throttles = {}  # addr -> {speed, forward}
+
+
+class JMRIHandler(BaseHTTPRequestHandler):
+
+    def log_message(self, fmt, *args):
+        print(f"  {self.path}  {fmt % args}")
+
+    def _send_json(self, data, status=200):
+        body = json.dumps(data).encode()
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", len(body))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _read_body(self):
+        length = int(self.headers.get("Content-Length", 0))
+        return json.loads(self.rfile.read(length)) if length else {}
+
+    def do_GET(self):
+        p = self.path.split("?")[0]
+        if p == "/json/power":
+            self._send_json(power)
+        elif p == "/json/roster":
+            self._send_json(roster)
+        elif p == "/json/sensors":
+            self._send_json(sensors)
+        elif p == "/json/turnouts":
+            self._send_json(turnouts)
+        elif p == "/json/signalMasts":
+            self._send_json(signals)
+        elif p == "/json/throttles":
+            self._send_json(list(throttles.values()))
+        else:
+            self._send_json({"error": "not found"}, 404)
+
+    def do_POST(self):
+        p = self.path.split("?")[0]
+        body = self._read_body()
+
+        if p == "/json/power":
+            power.update(body)
+            self._send_json(power)
+
+        elif m := re.match(r"^/json/turnouts/(.+)$", p):
+            name = m.group(1)
+            for t in turnouts:
+                if t["name"] == name:
+                    t.update(body)
+                    self._send_json(t)
+                    return
+            self._send_json({"error": "not found"}, 404)
+
+        elif m := re.match(r"^/json/throttles/(\d+)$", p):
+            addr = m.group(1)
+            throttles.setdefault(addr, {"address": int(addr), "speed": 0, "forward": True})
+            throttles[addr].update(body)
+            self._send_json(throttles[addr])
+
+        else:
+            self._send_json({"error": "not found"}, 404)
+
+
+if __name__ == "__main__":
+    server = HTTPServer(("", PORT), JMRIHandler)
+    print(f"Mock JMRI running on http://localhost:{PORT}")
+    print("  3 locos | 4 block sensors | 4 turnouts | 3 signals | track power ON")
+    print("  Ctrl-C to stop\n")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nStopped.")

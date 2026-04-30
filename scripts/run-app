@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+export DOCKER_CONTEXT="${DOCKER_CONTEXT:-default}"
+
+echo "Starting JMRI app at http://localhost:12080"
+echo ""
+
+# Use a named volume so data persists across runs.
+# Bind-mount paths don't work with docker-outside-of-docker because
+# the Docker daemon resolves paths on the host, not inside the devcontainer.
+docker volume create jmri-ha-data --label jmri-ha-integration >/dev/null
+
+# Share the devcontainer's network namespace so that localhost:12080
+# inside this container is reachable as localhost:12080 from HA.
+# -p is incompatible with --network container: so it is omitted here.
+docker run \
+    --rm \
+    --name jmri-app \
+    --entrypoint /run.sh \
+    --network "container:$(hostname)" \
+    -e JMRI_PREFS_PATH=/config/jmri \
+    -v jmri-ha-data:/config/jmri \
+    local/jmri-app:latest

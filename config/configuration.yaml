@@ -1,12 +1,23 @@
-# https://www.home-assistant.io/integrations/default_config/
-default_config:
-
-# https://www.home-assistant.io/integrations/homeassistant/
 homeassistant:
   debug: true
 
-# https://www.home-assistant.io/integrations/logger/
+# Minimal set needed for JMRI dev — avoids the 20+ optional packages default_config pulls in
+frontend:
+http:
+api:
+websocket_api:
+config:
+onboarding:
+lovelace:
+person:
+sun:
+recorder:
+  purge_keep_days: 1
+  commit_interval: 30
+history:
+logbook:
+
 logger:
   default: info
   logs:
-    custom_components.integration_blueprint: debug
+    custom_components.jmri: debug

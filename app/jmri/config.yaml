@@ -1,0 +1,35 @@
+name: JMRI Model Railroad
+description: Runs JMRI headless inside Home Assistant with a built-in web panel.
+version: "0.1.0"
+slug: jmri
+init: false
+startup: application
+boot: auto
+
+url: https://github.com/JeffBasso/jmri-ha-integration
+
+arch:
+  - aarch64
+  - amd64
+  - armv7
+
+ingress: true
+ingress_port: 12080
+ingress_stream: true
+panel_icon: mdi:train
+panel_title: JMRI
+webui: http://[HOST]:[PORT:12080]/
+
+ports:
+  12080/tcp: 12080
+ports_description:
+  12080/tcp: JMRI web server
+
+map:
+  - addon_config:rw
+
+options:
+  profile: ""
+
+schema:
+  profile: str

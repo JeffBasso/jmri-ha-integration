@@ -28,7 +28,9 @@ class JMRIDataUpdateCoordinator(DataUpdateCoordinator):
         self.host = entry.data[CONF_HOST]
         self.port = entry.data[CONF_PORT]
         self.base_url = f"http://{self.host}:{self.port}"
-        self.session = aiohttp.ClientSession()
+        # ThreadedResolver bypasses aiodns which has a Python 3.13 incompatibility
+        connector = aiohttp.TCPConnector(resolver=aiohttp.resolver.ThreadedResolver())
+        self.session = aiohttp.ClientSession(connector=connector)
 
         super().__init__(
             hass,

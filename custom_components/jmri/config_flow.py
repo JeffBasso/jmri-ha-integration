@@ -21,8 +21,12 @@ class JMRIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             port = user_input[CONF_PORT]
 
             # test the connection before accepting
+            # ThreadedResolver bypasses aiodns which has a Python 3.13 incompatibility
             try:
-                async with aiohttp.ClientSession() as session:
+                connector = aiohttp.TCPConnector(
+                    resolver=aiohttp.resolver.ThreadedResolver()
+                )
+                async with aiohttp.ClientSession(connector=connector) as session:
                     async with session.get(
                         f"http://{host}:{port}/json/power",
                         timeout=aiohttp.ClientTimeout(total=5),
@@ -34,7 +38,7 @@ class JMRIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             )
                         else:
                             errors["base"] = "cannot_connect"
-            except aiohttp.ClientConnectionError:
+            except (aiohttp.ClientConnectionError, OSError):
                 errors["base"] = "cannot_connect"
             except Exception:
                 errors["base"] = "unknown"
