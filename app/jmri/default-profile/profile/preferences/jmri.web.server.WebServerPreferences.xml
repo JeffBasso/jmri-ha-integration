@@ -9,7 +9,7 @@
         <map/>
         <node name="server">
           <map>
-            <entry key="port" value="12080"/>
+            <entry key="port" value="12090"/>
             <entry key="startAtStartup" value="true"/>
             <entry key="allowRemoteConfig" value="false"/>
             <entry key="readonlyServer" value="false"/>

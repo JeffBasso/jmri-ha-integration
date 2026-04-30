@@ -51,6 +51,13 @@ if grep -q 'jmri.jmrix.loconet.sim.configurexml.LocoNetSimulatorConnectionConfig
     rm -f "${PROFILE_DIR}/preferences/jmri.jmrix.loconet.sim.LocoNetSimulatorAdapter.xml"
 fi
 
+# Migrate web server port from 12080 to 12090 (nginx now owns 12080).
+WEB_PREFS="${PREFS}/profile/preferences/jmri.web.server.WebServerPreferences.xml"
+if grep -q 'key="port" value="12080"' "${WEB_PREFS}" 2>/dev/null; then
+    sed -i 's/key="port" value="12080"/key="port" value="12090"/' "${WEB_PREFS}"
+    log "Migrated JMRI web server port from 12080 to 12090"
+fi
+
 # Remove an invalid compatibility file created by early add-on builds. Modern
 # JMRI profile XML must stay in profile.xml; ProfileConfig.xml is a legacy format.
 if grep -q '<auxiliary-configuration' "${PROFILE_DIR}/ProfileConfig.xml" 2>/dev/null; then
