@@ -10,7 +10,7 @@ LABEL \
     io.hass.type="app" \
     io.hass.arch="${BUILD_ARCH}"
 
-RUN apk add --no-cache bash curl openjdk17-jre coreutils xvfb ttf-dejavu fontconfig python3 py3-aiohttp
+RUN apk add --no-cache bash curl openjdk17-jre coreutils xvfb ttf-dejavu fontconfig
 
 # pin to a specific production release — update both when upgrading
 ARG JMRI_VERSION="5.14"
@@ -26,7 +26,6 @@ RUN curl -fsSL \
     && rm /tmp/jmri.tgz
 
 COPY default-profile /opt/jmri/default-profile
-COPY proxy.py /opt/proxy.py
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
 

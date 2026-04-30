@@ -74,9 +74,6 @@ EOF
 log "Starting JMRI ${JMRI_VERSION:-unknown} on port 12080, ingress proxy on 12088"
 log "Preferences: ${PREFS}"
 
-# Start Python ingress proxy (rewrites absolute URLs for HA ingress compatibility).
-python3 /opt/proxy.py &
-
 # Start a virtual framebuffer so PanelPro's GUI components can initialize.
 Xvfb :1 -screen 0 1024x768x16 -nolisten tcp &
 export DISPLAY=:1
