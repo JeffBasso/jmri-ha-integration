@@ -51,14 +51,33 @@ if grep -q 'jmri.jmrix.loconet.sim.configurexml.LocoNetSimulatorConnectionConfig
     rm -f "${PROFILE_DIR}/preferences/jmri.jmrix.loconet.sim.LocoNetSimulatorAdapter.xml"
 fi
 
-# Migrate web server port from 12080 to 12090 (nginx now owns 12080).
-# Use find to catch the file wherever JMRI placed it.
-while IFS= read -r -d '' f; do
-    if grep -q 'key="port" value="12080"' "${f}"; then
-        sed -i 's/key="port" value="12080"/key="port" value="12090"/' "${f}"
-        log "Migrated JMRI web server port in ${f}"
-    fi
-done < <(find "${PREFS}" -name "jmri.web.server.WebServerPreferences.xml" -print0 2>/dev/null)
+# Always write the web server preferences so JMRI starts on port 12090.
+# JMRI ignores -D flags when a saved preferences file exists, so we
+# write it directly every boot rather than relying on a one-time migration.
+mkdir -p "${PREFS}/preferences"
+cat > "${PREFS}/preferences/jmri.web.server.WebServerPreferences.xml" << 'WEBPREFS'
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+<preferences EXTERNAL_XML_VERSION="1.0">
+  <root type="user">
+    <map/>
+    <node name="jmri">
+      <map/>
+      <node name="web">
+        <map/>
+        <node name="server">
+          <map>
+            <entry key="port" value="12090"/>
+            <entry key="startAtStartup" value="true"/>
+            <entry key="allowRemoteConfig" value="false"/>
+            <entry key="readonlyServer" value="false"/>
+          </map>
+        </node>
+      </map>
+    </node>
+  </root>
+</preferences>
+WEBPREFS
 
 # Remove an invalid compatibility file created by early add-on builds. Modern
 # JMRI profile XML must stay in profile.xml; ProfileConfig.xml is a legacy format.
@@ -72,7 +91,7 @@ cat > "${PREFS}/profiles.xml" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <profileConfig>
   <profiles>
-    <profile id="jmri-ha-docker" path="${PROFILE_DIR}" autoStart="true" />
+    <profile id="jmri-ha-docker" path="${PREFS}" autoStart="true" />
   </profiles>
   <searchPaths>
     <searchPath path="${PREFS}" />
@@ -93,6 +112,6 @@ sleep 1
 
 exec /opt/jmri/PanelPro \
     --settingsdir="${PREFS}" \
-    --profile="${PROFILE_DIR}" \
+    --profile="${PREFS}" \
     "-Djmri.web.server.port=12090" \
     "-Djmri.web.server.startAtStartup=true"
