@@ -52,11 +52,13 @@ if grep -q 'jmri.jmrix.loconet.sim.configurexml.LocoNetSimulatorConnectionConfig
 fi
 
 # Migrate web server port from 12080 to 12090 (nginx now owns 12080).
-WEB_PREFS="${PREFS}/profile/preferences/jmri.web.server.WebServerPreferences.xml"
-if grep -q 'key="port" value="12080"' "${WEB_PREFS}" 2>/dev/null; then
-    sed -i 's/key="port" value="12080"/key="port" value="12090"/' "${WEB_PREFS}"
-    log "Migrated JMRI web server port from 12080 to 12090"
-fi
+# Use find to catch the file wherever JMRI placed it.
+while IFS= read -r -d '' f; do
+    if grep -q 'key="port" value="12080"' "${f}"; then
+        sed -i 's/key="port" value="12080"/key="port" value="12090"/' "${f}"
+        log "Migrated JMRI web server port in ${f}"
+    fi
+done < <(find "${PREFS}" -name "jmri.web.server.WebServerPreferences.xml" -print0 2>/dev/null)
 
 # Remove an invalid compatibility file created by early add-on builds. Modern
 # JMRI profile XML must stay in profile.xml; ProfileConfig.xml is a legacy format.
@@ -70,7 +72,7 @@ cat > "${PREFS}/profiles.xml" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <profileConfig>
   <profiles>
-    <profile id="jmri-ha-docker" path="${PREFS}" autoStart="true" />
+    <profile id="jmri-ha-docker" path="${PROFILE_DIR}" autoStart="true" />
   </profiles>
   <searchPaths>
     <searchPath path="${PREFS}" />
@@ -91,6 +93,6 @@ sleep 1
 
 exec /opt/jmri/PanelPro \
     --settingsdir="${PREFS}" \
-    --profile="${PREFS}" \
+    --profile="${PROFILE_DIR}" \
     "-Djmri.web.server.port=12090" \
     "-Djmri.web.server.startAtStartup=true"
