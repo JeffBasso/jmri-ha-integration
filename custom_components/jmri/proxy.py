@@ -1,4 +1,5 @@
 """HTTP proxy for the JMRI web UI."""
+
 from __future__ import annotations
 
 from http import HTTPStatus
@@ -6,7 +7,6 @@ from typing import Any
 
 import aiohttp
 from aiohttp import web
-
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant

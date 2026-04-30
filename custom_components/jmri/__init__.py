@@ -1,4 +1,5 @@
 """The JMRI Model Railroad integration."""
+
 import logging
 from pathlib import Path
 
@@ -9,7 +10,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN, PLATFORMS
 from .coordinator import JMRIDataUpdateCoordinator
-from .proxy import JMRIProxyView, PROXY_PREFIX
+from .proxy import PROXY_PREFIX, JMRIProxyView
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,7 +21,6 @@ PANEL_MODULE_URL = "/jmri_static/panel.js"
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up JMRI from a config entry."""
-
     # create the coordinator
     coordinator = JMRIDataUpdateCoordinator(hass, entry)
 
@@ -61,7 +61,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-
     # unload all platforms
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 

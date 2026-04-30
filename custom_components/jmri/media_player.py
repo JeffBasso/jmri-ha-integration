@@ -1,5 +1,7 @@
 """JMRI locomotive media player entities."""
+
 import logging
+
 from homeassistant.components.media_player import (
     MediaPlayerEntity,
     MediaPlayerEntityFeature,
@@ -10,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, API_THROTTLES
+from .const import API_THROTTLES, DOMAIN
 from .coordinator import JMRIDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,10 +40,7 @@ async def async_setup_entry(
 
     entities = []
     if isinstance(roster, list):
-        entities.extend([
-            JMRILocomotive(coordinator, loco)
-            for loco in roster
-        ])
+        entities.extend([JMRILocomotive(coordinator, loco) for loco in roster])
 
     async_add_entities(entities, True)
 
@@ -68,9 +67,7 @@ class JMRILocomotive(CoordinatorEntity, MediaPlayerEntity):
         self._loco_id = loco_data.get("name", "unknown")
         self._address = loco_data.get("address", 0)
         self._attr_unique_id = f"jmri_loco_{self._loco_id}"
-        self._attr_name = loco_data.get(
-            "userName", f"Locomotive {self._loco_id}"
-        )
+        self._attr_name = loco_data.get("userName", f"Locomotive {self._loco_id}")
         # local state — not from coordinator
         self._speed = 0
         self._forward = True

@@ -1,5 +1,7 @@
 """JMRI signal mast sensors."""
+
 import logging
+
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -13,11 +15,11 @@ _LOGGER = logging.getLogger(__name__)
 
 # map JMRI signal aspects to colors for icon
 ASPECT_ICONS = {
-    "Clear":        "mdi:circle-slice-8",      # green
-    "Approach":     "mdi:circle-slice-8",      # yellow
-    "Stop":         "mdi:circle-slice-8",      # red
-    "StopAndProceed": "mdi:circle-slice-4",    # red/yellow
-    "Unlit":        "mdi:circle-outline",      # dark
+    "Clear": "mdi:circle-slice-8",  # green
+    "Approach": "mdi:circle-slice-8",  # yellow
+    "Stop": "mdi:circle-slice-8",  # red
+    "StopAndProceed": "mdi:circle-slice-4",  # red/yellow
+    "Unlit": "mdi:circle-outline",  # dark
 }
 
 
@@ -33,10 +35,7 @@ async def async_setup_entry(
 
     entities = []
     if isinstance(signals, list):
-        entities.extend([
-            JMRISignalMast(coordinator, signal)
-            for signal in signals
-        ])
+        entities.extend([JMRISignalMast(coordinator, signal) for signal in signals])
 
     async_add_entities(entities, True)
 

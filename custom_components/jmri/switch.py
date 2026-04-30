@@ -1,5 +1,7 @@
 """JMRI turnout and track power switches."""
+
 import logging
+
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -7,13 +9,13 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
-    DOMAIN,
-    STATE_THROWN,
-    STATE_CLOSED,
-    STATE_ON,
-    STATE_OFF,
-    API_TURNOUTS,
     API_POWER,
+    API_TURNOUTS,
+    DOMAIN,
+    STATE_CLOSED,
+    STATE_OFF,
+    STATE_ON,
+    STATE_THROWN,
 )
 from .coordinator import JMRIDataUpdateCoordinator
 
@@ -36,10 +38,7 @@ async def async_setup_entry(
     # add turnout switches
     turnouts = coordinator.data.get("turnouts", [])
     if isinstance(turnouts, list):
-        entities.extend([
-            JMRITurnout(coordinator, turnout)
-            for turnout in turnouts
-        ])
+        entities.extend([JMRITurnout(coordinator, turnout) for turnout in turnouts])
 
     async_add_entities(entities, True)
 
@@ -65,16 +64,12 @@ class JMRITrackPower(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs):
         """Turn track power on."""
-        await self.coordinator.async_send_command(
-            API_POWER, {"state": STATE_ON}
-        )
+        await self.coordinator.async_send_command(API_POWER, {"state": STATE_ON})
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs):
         """Turn track power off."""
-        await self.coordinator.async_send_command(
-            API_POWER, {"state": STATE_OFF}
-        )
+        await self.coordinator.async_send_command(API_POWER, {"state": STATE_OFF})
         await self.coordinator.async_request_refresh()
 
 

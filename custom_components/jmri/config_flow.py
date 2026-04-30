@@ -1,10 +1,11 @@
 """Config flow for JMRI integration."""
+
 import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST, CONF_PORT, CONF_NAME
+from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT
 
-from .const import DOMAIN, DEFAULT_HOST, DEFAULT_PORT, DEFAULT_NAME
+from .const import DEFAULT_HOST, DEFAULT_NAME, DEFAULT_PORT, DOMAIN
 
 
 class JMRIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -36,9 +37,8 @@ class JMRIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                                 title=user_input[CONF_NAME],
                                 data=user_input,
                             )
-                        else:
-                            errors["base"] = "cannot_connect"
-            except (aiohttp.ClientConnectionError, OSError):
+                        errors["base"] = "cannot_connect"
+            except aiohttp.ClientConnectionError, OSError:
                 errors["base"] = "cannot_connect"
             except Exception:
                 errors["base"] = "unknown"

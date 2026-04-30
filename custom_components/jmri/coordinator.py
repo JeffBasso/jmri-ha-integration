@@ -1,20 +1,21 @@
 """JMRI Data Update Coordinator."""
+
 import logging
-import aiohttp
 from datetime import timedelta
 
+import aiohttp
+from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from homeassistant.const import CONF_HOST, CONF_PORT
 
 from .const import (
-    DOMAIN,
-    SCAN_INTERVAL,
+    API_POWER,
     API_ROSTER,
     API_SENSORS,
-    API_TURNOUTS,
-    API_POWER,
     API_SIGNALS,
+    API_TURNOUTS,
+    DOMAIN,
+    SCAN_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -68,9 +69,8 @@ class JMRIDataUpdateCoordinator(DataUpdateCoordinator):
             ) as resp:
                 if resp.status == 200:
                     return await resp.json()
-                else:
-                    _LOGGER.warning("JMRI returned %s for %s", resp.status, url)
-                    return []
+                _LOGGER.warning("JMRI returned %s for %s", resp.status, url)
+                return []
         except Exception as err:
             _LOGGER.error("Error fetching %s: %s", url, err)
             return []
