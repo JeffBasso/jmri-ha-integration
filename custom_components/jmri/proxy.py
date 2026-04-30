@@ -15,7 +15,6 @@ PROXY_PREFIX = "/api/jmri_proxy"
 
 _HOP_BY_HOP_HEADERS = {
     "connection",
-    "content-encoding",
     "content-length",
     "keep-alive",
     "proxy-authenticate",
@@ -73,6 +72,7 @@ class JMRIProxyView(HomeAssistantView):
             for key, value in request.headers.items()
             if key.lower() not in _HOP_BY_HOP_HEADERS and key.lower() != "host"
         }
+        headers["accept-encoding"] = "identity"
 
         try:
             connector = aiohttp.TCPConnector(

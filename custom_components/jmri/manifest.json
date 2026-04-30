@@ -5,10 +5,10 @@
     "@JeffBasso"
   ],
   "config_flow": true,
+  "dependencies": ["http"],
   "documentation": "https://github.com/JeffBasso/jmri-ha-integration",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/JeffBasso/jmri-ha-integration/issues",
-  "dependencies": ["http"],
   "requirements": ["aiohttp>=3.8.0"],
   "version": "0.1.0"
 }
