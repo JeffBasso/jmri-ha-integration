@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Ingress-aware reverse proxy for the JMRI web UI.
+"""
+Ingress-aware reverse proxy for the JMRI web UI.
 
 Listens on 12088 (HA ingress_port), proxies to JMRI on 12080.
 When X-Ingress-Path is present, rewrites absolute URLs in HTML and
@@ -9,8 +10,9 @@ rewriting is skipped.
 """
 import asyncio
 import re
+
 import aiohttp
-from aiohttp import web, WSMsgType
+from aiohttp import WSMsgType, web
 
 JMRI_HTTP = "http://127.0.0.1:12080"
 JMRI_WS   = "ws://127.0.0.1:12080"
@@ -68,7 +70,7 @@ async def _proxy_ws(request: web.Request) -> web.WebSocketResponse:
         asyncio.ensure_future(pipe(ws, upstream)),
         asyncio.ensure_future(pipe(upstream, ws)),
     ]
-    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+    _done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
     for t in pending:
         t.cancel()
 
@@ -76,6 +78,7 @@ async def _proxy_ws(request: web.Request) -> web.WebSocketResponse:
 
 
 async def handle(request: web.Request) -> web.StreamResponse:
+    """Proxy a request to JMRI, rewriting URLs when behind HA ingress."""
     if request.headers.get("Upgrade", "").lower() == "websocket":
         return await _proxy_ws(request)
 
@@ -135,4 +138,4 @@ app.router.add_route("*", "/", handle)
 app.router.add_route("*", "/{path:.*}", handle)
 
 if __name__ == "__main__":
-    web.run_app(app, host="0.0.0.0", port=12088, access_log=None)
+    web.run_app(app, host="0.0.0.0", port=12088, access_log=None)  # noqa: S104
