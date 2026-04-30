@@ -18,3 +18,6 @@ coverage.xml
 # Home Assistant configuration
 config/*
 !config/configuration.yaml
+
+# Secrets (never commit)
+docs/Secrets.md
