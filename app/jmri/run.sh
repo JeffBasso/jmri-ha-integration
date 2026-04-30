@@ -51,34 +51,6 @@ if grep -q 'jmri.jmrix.loconet.sim.configurexml.LocoNetSimulatorConnectionConfig
     rm -f "${PROFILE_DIR}/preferences/jmri.jmrix.loconet.sim.LocoNetSimulatorAdapter.xml"
 fi
 
-# Always write the web server preferences so JMRI starts on port 12090.
-# JMRI ignores -D flags when a saved preferences file exists, so we
-# write it directly every boot rather than relying on a one-time migration.
-mkdir -p "${PREFS}/preferences"
-cat > "${PREFS}/preferences/jmri.web.server.WebServerPreferences.xml" << 'WEBPREFS'
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
-<preferences EXTERNAL_XML_VERSION="1.0">
-  <root type="user">
-    <map/>
-    <node name="jmri">
-      <map/>
-      <node name="web">
-        <map/>
-        <node name="server">
-          <map>
-            <entry key="port" value="12090"/>
-            <entry key="startAtStartup" value="true"/>
-            <entry key="allowRemoteConfig" value="false"/>
-            <entry key="readonlyServer" value="false"/>
-          </map>
-        </node>
-      </map>
-    </node>
-  </root>
-</preferences>
-WEBPREFS
-
 # Remove an invalid compatibility file created by early add-on builds. Modern
 # JMRI profile XML must stay in profile.xml; ProfileConfig.xml is a legacy format.
 if grep -q '<auxiliary-configuration' "${PROFILE_DIR}/ProfileConfig.xml" 2>/dev/null; then
@@ -99,10 +71,11 @@ cat > "${PREFS}/profiles.xml" << EOF
 </profileConfig>
 EOF
 
-log "Starting JMRI ${JMRI_VERSION:-unknown} on internal port 12090, nginx on 12080"
+log "Starting JMRI ${JMRI_VERSION:-unknown} on port 12080, nginx ingress proxy on 12088"
 log "Preferences: ${PREFS}"
 
-# Start nginx reverse proxy (rewrites absolute paths for HA ingress compatibility)
+# Start nginx ingress proxy (rewrites absolute paths for HA ingress compatibility).
+# nginx listens on 12088 (ingress_port) and proxies to JMRI on 12080.
 nginx -g "daemon off;" &
 
 # Start a virtual framebuffer so PanelPro's GUI components can initialize.
@@ -113,5 +86,4 @@ sleep 1
 exec /opt/jmri/PanelPro \
     --settingsdir="${PREFS}" \
     --profile="${PREFS}" \
-    "-Djmri.web.server.port=12090" \
     "-Djmri.web.server.startAtStartup=true"
