@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Ingress-aware reverse proxy for the JMRI web UI.
 
