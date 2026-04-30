@@ -10,7 +10,7 @@ LABEL \
     io.hass.type="app" \
     io.hass.arch="${BUILD_ARCH}"
 
-RUN apk add --no-cache bash curl openjdk17-jre coreutils xvfb ttf-dejavu fontconfig
+RUN apk add --no-cache bash curl openjdk17-jre coreutils xvfb ttf-dejavu fontconfig nginx
 
 # pin to a specific production release — update both when upgrading
 ARG JMRI_VERSION="5.14"
@@ -26,6 +26,7 @@ RUN curl -fsSL \
     && rm /tmp/jmri.tgz
 
 COPY default-profile /opt/jmri/default-profile
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
 

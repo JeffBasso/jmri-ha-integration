@@ -71,11 +71,13 @@ cat > "${PREFS}/profiles.xml" << EOF
 </profileConfig>
 EOF
 
-log "Starting JMRI ${JMRI_VERSION:-unknown} headless on port 12080"
+log "Starting JMRI ${JMRI_VERSION:-unknown} on internal port 12090, nginx on 12080"
 log "Preferences: ${PREFS}"
 
+# Start nginx reverse proxy (rewrites absolute paths for HA ingress compatibility)
+nginx -g "daemon off;" &
+
 # Start a virtual framebuffer so PanelPro's GUI components can initialize.
-# JmriFaceless exits immediately (no persistent threads); PanelPro + Xvfb stays alive.
 Xvfb :1 -screen 0 1024x768x16 -nolisten tcp &
 export DISPLAY=:1
 sleep 1
@@ -83,5 +85,5 @@ sleep 1
 exec /opt/jmri/PanelPro \
     --settingsdir="${PREFS}" \
     --profile="${PREFS}" \
-    "-Djmri.web.server.port=12080" \
+    "-Djmri.web.server.port=12090" \
     "-Djmri.web.server.startAtStartup=true"
