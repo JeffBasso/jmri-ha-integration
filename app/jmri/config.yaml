@@ -1,6 +1,6 @@
 name: JMRI Model Railroad
 description: Runs JMRI headless inside Home Assistant with a built-in web panel.
-version: "0.2.0"
+version: "0.3.0"
 slug: jmri
 init: false
 startup: application
