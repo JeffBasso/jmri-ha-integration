@@ -1,6 +1,6 @@
 colorlog==6.10.1
 homeassistant==2025.1.4
-home-assistant-frontend==20250109.2
+home-assistant-frontend==20260429.4
 aiodhcpwatcher
 numpy==2.2.0
 pip>=21.3.1
